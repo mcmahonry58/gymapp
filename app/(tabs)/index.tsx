@@ -5,12 +5,14 @@ import { useWorkoutStore } from '../../store/workoutStore';
 import { useNutritionLogs } from '../../hooks/useNutritionLogs';
 import { useSleepLog, sleepDurationHours, formatDuration } from '../../hooks/useSleepLog';
 import { useWellnessCheckin } from '../../hooks/useWellnessCheckin';
+import { useEnrollment } from '../../hooks/useEnrollment';
 import { Colors } from '../../constants/colors';
 
 const BLUE = '#4A90D9';
 const GREEN = '#4CAF82';
 const PURPLE = '#9B6FD4';
 const ORANGE = '#E08C3A';
+const TEAL = '#2DB6CA';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -18,6 +20,7 @@ export default function HomeScreen() {
   const { totals, loading: nutritionLoading } = useNutritionLogs();
   const { log: sleepLog, loading: sleepLoading } = useSleepLog();
   const { checkin, loading: wellnessLoading } = useWellnessCheckin();
+  const { enrollment, loading: programLoading } = useEnrollment();
   const startWorkout = useWorkoutStore((s) => s.startWorkout);
   const activeWorkout = useWorkoutStore((s) => s.activeWorkout);
 
@@ -31,6 +34,39 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.heading}>Today</Text>
+
+      {/* Program card */}
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View style={[styles.dot, { backgroundColor: TEAL }]} />
+          <Text style={styles.cardTitle}>Program</Text>
+        </View>
+        {programLoading ? (
+          <ActivityIndicator color={Colors.textSecondary} style={{ marginTop: 12 }} />
+        ) : enrollment?.status === 'active' ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.programName}>{enrollment.programs.name}</Text>
+            <Text style={styles.emptyText}>
+              Week {enrollment.current_week}, Session {enrollment.current_session}
+            </Text>
+            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: TEAL }]} onPress={() => router.push('/program/session')}>
+              <Text style={[styles.primaryButtonText, { color: '#fff' }]}>Start Session</Text>
+            </TouchableOpacity>
+          </View>
+        ) : enrollment?.status === 'completed' ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.programName}>{enrollment.programs.name}</Text>
+            <Text style={styles.emptyText}>Program complete!</Text>
+          </View>
+        ) : (
+          <View style={styles.cardBody}>
+            <Text style={styles.emptyText}>No program enrolled</Text>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(tabs)/discover')}>
+              <Text style={styles.primaryButtonText}>Find a Program</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
 
       {/* Workout card */}
       <View style={styles.card}>
@@ -227,6 +263,11 @@ const styles = StyleSheet.create({
   statLabel: {
     color: Colors.textSecondary,
     fontSize: 12,
+  },
+  programName: {
+    color: Colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '600',
   },
   emptyText: {
     color: Colors.textSecondary,

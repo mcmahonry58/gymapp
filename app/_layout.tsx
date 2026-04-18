@@ -106,6 +106,24 @@ export default Sentry.wrap(function RootLayout() {
           headerShadowVisible: false,
         }}
       />
+      <Stack.Screen
+        name="program/[id]"
+        options={{
+          title: '',
+          headerStyle: { backgroundColor: '#0F0F0F' },
+          headerTintColor: '#F2F2F2',
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="program/session"
+        options={{
+          title: 'Session',
+          headerStyle: { backgroundColor: '#0F0F0F' },
+          headerTintColor: '#F2F2F2',
+          headerShadowVisible: false,
+        }}
+      />
     </Stack>
   );
 });
